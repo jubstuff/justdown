@@ -1,0 +1,1 @@
+# Firesale - A Markdown editor
