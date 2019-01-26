@@ -14,6 +14,8 @@ const saveHtmlButton = document.querySelector( '#save-html' );
 const showFileButton = document.querySelector( '#show-file' );
 const openInDefaultButton = document.querySelector( '#open-in-default' );
 
+const currentWindow = remote.getCurrentWindow();
+
 const renderMarkdownToHtml = ( markdown ) => {
 	htmlView.innerHTML = marked( markdown, {sanitize: true} );
 };
@@ -25,11 +27,16 @@ markdownView.addEventListener( 'keyup', ( event ) => {
 
 openFileButton.addEventListener( 'click', ( event ) => {
 	// We can call this, because we have `export`ed the getFileFromUser function in the main process.
-	mainProcess.getFileFromUser();
+	mainProcess.getFileFromUser( currentWindow );
 } );
+
+newFileButton.addEventListener( 'click', ( event ) => {
+	mainProcess.createWindow();
+} );
+
 // read from the file-opened channel, opened in the main process
-ipcRenderer.on('file-opened', (event, file, content) => {
-	console.log(event),
+ipcRenderer.on( 'file-opened', ( event, file, content ) => {
+	console.log( event );
 	markdownView.value = content;
-	renderMarkdownToHtml(content);
-});
+	renderMarkdownToHtml( content );
+} );
