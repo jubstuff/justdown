@@ -20,12 +20,12 @@ app.on( 'ready', () => {
 	} )
 } );
 
-const getFileFromUser = exports.getFileFromUser = () => {
+const getFileFromUser = () => {
 	const files = dialog.showOpenDialog( mainWindow, {
 		properties: ['openFile'],
 		filters: [
-			{name: 'Text Files', extensions: ['txt']},
-			{name: 'Markdown Files', extensions: ['md', 'markdown']}
+			{name: 'Markdown Files', extensions: ['md', 'markdown']},
+			{name: 'Text Files', extensions: ['txt']}
 		]
 	} );
 
@@ -36,6 +36,9 @@ const getFileFromUser = exports.getFileFromUser = () => {
 
 const openFile = ( file ) => {
 	const content = fs.readFileSync( file ).toString();
-
+	// open a 'file-opened' channel and send the file name and content.
 	mainWindow.webContents.send( 'file-opened', file, content );
 };
+
+// Exports
+exports.getFileFromUser = getFileFromUser;

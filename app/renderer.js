@@ -1,6 +1,7 @@
 const marked = require( 'marked' );
 
 const {remote, ipcRenderer} = require( 'electron' );
+// require the main process
 const mainProcess = remote.require( './main.js' );
 
 const markdownView = document.querySelector( '#markdown' );
@@ -23,10 +24,12 @@ markdownView.addEventListener( 'keyup', ( event ) => {
 } );
 
 openFileButton.addEventListener( 'click', ( event ) => {
+	// We can call this, because we have `export`ed the getFileFromUser function in the main process.
 	mainProcess.getFileFromUser();
 } );
-
+// read from the file-opened channel, opened in the main process
 ipcRenderer.on('file-opened', (event, file, content) => {
+	console.log(event),
 	markdownView.value = content;
 	renderMarkdownToHtml(content);
 });
