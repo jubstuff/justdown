@@ -53,6 +53,7 @@ const getFileFromUser = ( targetWindow ) => {
 
 const openFile = ( targetWindow, file ) => {
 	const content = fs.readFileSync( file ).toString();
+	targetWindow.setRepresentedFilename(file);
 	// open a 'file-opened' channel and send the file name and content.
 	targetWindow.webContents.send( 'file-opened', file, content );
 };
