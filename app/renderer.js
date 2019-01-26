@@ -27,6 +27,7 @@ const renderMarkdownToHtml = ( markdown ) => {
 markdownView.addEventListener( 'keyup', ( event ) => {
 	const currentContent = event.target.value;
 	renderMarkdownToHtml( currentContent );
+	updateUserInterface( currentContent !== originalContent );
 } );
 
 openFileButton.addEventListener( 'click', ( event ) => {
@@ -38,13 +39,18 @@ newFileButton.addEventListener( 'click', ( event ) => {
 	mainProcess.createWindow();
 } );
 
-const updateUserInterface = () => {
+const updateUserInterface = ( isEdited ) => {
 	let title = 'Justdown';
 	if ( filePath ) {
 		title = `${path.basename( filePath )} - ${title}`;
 	}
 
+	if ( isEdited ) {
+		title = `${title} *`;
+	}
+
 	currentWindow.setTitle( title );
+	currentWindow.setDocumentEdited( isEdited )
 };
 
 // read from the file-opened channel, opened in the main process
