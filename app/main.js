@@ -53,7 +53,8 @@ const getFileFromUser = ( targetWindow ) => {
 
 const openFile = ( targetWindow, file ) => {
 	const content = fs.readFileSync( file ).toString();
-	targetWindow.setRepresentedFilename(file);
+	app.addRecentDocument( file );
+	targetWindow.setRepresentedFilename( file );
 	// open a 'file-opened' channel and send the file name and content.
 	targetWindow.webContents.send( 'file-opened', file, content );
 };
@@ -70,6 +71,15 @@ app.on( 'activate', ( event, hasVisibleWindows ) => {
 	if ( ! hasVisibleWindows ) {
 		createWindow();
 	}
+} );
+
+app.on( 'will-finish-launching', () => {
+	app.on( 'open-file', ( event, file ) => {
+		const win = createWindow();
+		win.once( 'ready-to-show', () => {
+			openFile( win, file );
+		} )
+	} );
 } );
 
 // Exports
