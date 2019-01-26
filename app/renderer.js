@@ -1,4 +1,5 @@
 const marked = require( 'marked' );
+const path = require( 'path' );
 
 const {remote, ipcRenderer} = require( 'electron' );
 // require the main process
@@ -15,6 +16,9 @@ const showFileButton = document.querySelector( '#show-file' );
 const openInDefaultButton = document.querySelector( '#open-in-default' );
 
 const currentWindow = remote.getCurrentWindow();
+
+let filePath = null;
+let originalContent = '';
 
 const renderMarkdownToHtml = ( markdown ) => {
 	htmlView.innerHTML = marked( markdown, {sanitize: true} );
@@ -34,9 +38,22 @@ newFileButton.addEventListener( 'click', ( event ) => {
 	mainProcess.createWindow();
 } );
 
+const updateUserInterface = () => {
+	let title = 'Justdown';
+	if ( filePath ) {
+		title = `${path.basename( filePath )} - ${title}`;
+	}
+
+	currentWindow.setTitle( title );
+};
+
 // read from the file-opened channel, opened in the main process
 ipcRenderer.on( 'file-opened', ( event, file, content ) => {
-	console.log( event );
+	filePath = file;
+	originalContent = content;
+
 	markdownView.value = content;
 	renderMarkdownToHtml( content );
+
+	updateUserInterface();
 } );
