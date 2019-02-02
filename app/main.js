@@ -39,7 +39,7 @@ const startWatchingFile = ( targetWindow, file ) => {
 	const watcher = fs.watch( file, ( event ) => {
 		if ( event === 'change' ) {
 			const content = fs.readFileSync( file );
-			targetWindow.webContents.send( 'file-opened', file, content );
+			targetWindow.webContents.send( 'file-changed', file, content );
 		}
 	} );
 
