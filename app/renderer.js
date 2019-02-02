@@ -50,10 +50,10 @@ const updateUserInterface = ( isEdited ) => {
 	}
 
 	currentWindow.setTitle( title );
-	currentWindow.setDocumentEdited( isEdited )
+	currentWindow.setDocumentEdited( isEdited );
 
-	saveMarkdownButton.disabled = !isEdited;
-	revertButton.disabled = !isEdited;
+	saveMarkdownButton.disabled = ! isEdited;
+	revertButton.disabled = ! isEdited;
 };
 
 // read from the file-opened channel, opened in the main process
@@ -65,4 +65,8 @@ ipcRenderer.on( 'file-opened', ( event, file, content ) => {
 	renderMarkdownToHtml( content );
 
 	updateUserInterface();
+} );
+
+saveHtmlButton.addEventListener( 'click', () => {
+	mainProcess.saveHtml( currentWindow, htmlView.innerHTML );
 } );

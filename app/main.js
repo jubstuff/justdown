@@ -37,6 +37,22 @@ app.on( 'ready', () => {
 	createWindow();
 } );
 
+const saveHtml = ( targetWindow, content ) => {
+	const file = dialog.showSaveDialog( targetWindow, {
+		title: 'Save HTML',
+		defaultPath: app.getPath( 'documents' ),
+		filters: [
+			{name: 'HTML Files', extensions: ['html', 'htm']}
+		]
+	} );
+
+	if ( ! file ) {
+		return;
+	}
+
+	fs.writeFileSync( file, content );
+};
+
 const getFileFromUser = ( targetWindow ) => {
 	const files = dialog.showOpenDialog( targetWindow, {
 		properties: ['openFile'],
@@ -86,3 +102,4 @@ app.on( 'will-finish-launching', () => {
 exports.getFileFromUser = getFileFromUser;
 exports.createWindow = createWindow;
 exports.openFile = openFile;
+exports.saveHtml = saveHtml;
