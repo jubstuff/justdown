@@ -4,6 +4,28 @@ const fs = require( 'fs' );
 
 let mainWindow = null;
 const windows = new Set();
+const openFiles = new Map();
+
+const stopWatchingFile = ( targetWindow ) => {
+	if ( openFiles.has( targetWindow ) ) {
+		openFiles.get( targetWindow ).stop();
+		openFiles.delete( targetWindow );
+	}
+};
+
+const startWatchingFile = ( targetWindow, file ) => {
+	stopWatchingFile( targetWindow );
+
+	const watcher = fs.watch( file, ( event ) => {
+		if ( event === 'change' ) {
+			const content = fs.readFileSync( file );
+			targetWindow.webContents.send( 'file-opened', file, content );
+		}
+	} );
+
+	openFiles.set( targetWindow, watcher );
+};
+
 
 const createWindow = () => {
 	let x, y;
@@ -26,6 +48,7 @@ const createWindow = () => {
 
 	newWindow.on( 'closed', () => {
 		windows.delete( newWindow );
+		stopWatchingFile(newWindow);
 		newWindow = null;
 	} );
 
@@ -92,6 +115,7 @@ const openFile = ( targetWindow, file ) => {
 	targetWindow.setRepresentedFilename( file );
 	// open a 'file-opened' channel and send the file name and content.
 	targetWindow.webContents.send( 'file-opened', file, content );
+	startWatchingFile(targetWindow, file);
 };
 
 // Manage macOS behavior with all windows closed.
