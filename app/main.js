@@ -5,10 +5,30 @@ const fs = require( 'fs' );
 let mainWindow = null;
 const windows = new Set();
 const openFiles = new Map();
+const editedStore = new Map();
+
+const setDocumentEdited = ( targetWindow, isEdited ) => {
+	editedStore.set( targetWindow, isEdited );
+
+	if ( process.platform === 'darwin' ) {
+		// isDocumentEdited and setDocumentEdited are supported only on macOS.
+		// https://electronjs.org/docs/api/browser-window#winsetdocumenteditededited-macos
+		targetWindow.setDocumentEdited( isEdited );
+	}
+
+};
+
+const isDocumentEdited = ( targetWindow ) => {
+	if ( editedStore.has( targetWindow ) ) {
+		return editedStore.get( targetWindow );
+	}
+
+	return false;
+};
 
 const stopWatchingFile = ( targetWindow ) => {
 	if ( openFiles.has( targetWindow ) ) {
-		openFiles.get( targetWindow ).stop();
+		openFiles.get( targetWindow ).close();
 		openFiles.delete( targetWindow );
 	}
 };
@@ -48,8 +68,31 @@ const createWindow = () => {
 
 	newWindow.on( 'closed', () => {
 		windows.delete( newWindow );
-		stopWatchingFile(newWindow);
+		stopWatchingFile( newWindow );
 		newWindow = null;
+	} );
+
+	newWindow.on( 'close', ( event ) => {
+
+		if ( isDocumentEdited( newWindow ) ) {
+			event.preventDefault();
+
+			const result = dialog.showMessageBox( newWindow, {
+				type: 'warning',
+				title: 'Quit with unsaved changes?',
+				message: 'Your changes will be lost if you do not save.',
+				buttons: [
+					'Quit anyway',
+					'Cancel'
+				],
+				defaultId: 0,
+				cancelId: 1
+			} );
+
+			if ( result === 0 ) {
+				newWindow.destroy();
+			}
+		}
 	} );
 
 	windows.add( newWindow );
@@ -115,7 +158,7 @@ const openFile = ( targetWindow, file ) => {
 	targetWindow.setRepresentedFilename( file );
 	// open a 'file-opened' channel and send the file name and content.
 	targetWindow.webContents.send( 'file-opened', file, content );
-	startWatchingFile(targetWindow, file);
+	startWatchingFile( targetWindow, file );
 };
 
 // Manage macOS behavior with all windows closed.
@@ -147,3 +190,5 @@ exports.createWindow = createWindow;
 exports.openFile = openFile;
 exports.saveHtml = saveHtml;
 exports.saveMarkdown = saveMarkdown;
+exports.isDocumentEdited = isDocumentEdited;
+exports.setDocumentEdited = setDocumentEdited;
