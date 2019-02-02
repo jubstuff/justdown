@@ -53,6 +53,25 @@ const saveHtml = ( targetWindow, content ) => {
 	fs.writeFileSync( file, content );
 };
 
+const saveMarkdown = ( targetWindow, file, content ) => {
+	if ( ! file ) {
+		file = dialog.showSaveDialog( targetWindow, {
+			title: 'Save Markdown',
+			defaultPath: app.getPath( 'documents' ),
+			filters: [
+				{name: 'Markdown files', extensions: ['md', 'markdown']}
+			]
+		} );
+	}
+
+	if ( ! file ) {
+		return;
+	}
+
+	fs.writeFileSync( file, content );
+	openFile( targetWindow, file );
+};
+
 const getFileFromUser = ( targetWindow ) => {
 	const files = dialog.showOpenDialog( targetWindow, {
 		properties: ['openFile'],
@@ -103,3 +122,4 @@ exports.getFileFromUser = getFileFromUser;
 exports.createWindow = createWindow;
 exports.openFile = openFile;
 exports.saveHtml = saveHtml;
+exports.saveMarkdown = saveMarkdown;

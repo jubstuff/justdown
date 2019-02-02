@@ -70,3 +70,7 @@ ipcRenderer.on( 'file-opened', ( event, file, content ) => {
 saveHtmlButton.addEventListener( 'click', () => {
 	mainProcess.saveHtml( currentWindow, htmlView.innerHTML );
 } );
+
+saveMarkdownButton.addEventListener( 'click', () => {
+	mainProcess.saveMarkdown( currentWindow, filePath, markdownView.value );
+} );
