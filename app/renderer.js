@@ -74,3 +74,8 @@ saveHtmlButton.addEventListener( 'click', () => {
 saveMarkdownButton.addEventListener( 'click', () => {
 	mainProcess.saveMarkdown( currentWindow, filePath, markdownView.value );
 } );
+
+revertButton.addEventListener('click', () => {
+	markdownView.value = originalContent;
+	renderMarkdownToHtml(originalContent);
+});
