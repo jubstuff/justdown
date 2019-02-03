@@ -101,6 +101,14 @@ const updateUserInterface = ( isEdited ) => {
 	revertButton.disabled = ! isEdited;
 };
 
+ipcRenderer.on( 'save-markdown', () => {
+	mainProcess.saveMarkdown( currentWindow, filePath, markdownView.value );
+} );
+
+ipcRenderer.on( 'save-html', () => {
+	mainProcess.saveHtml( currentWindow, filePath, markdownView.value );
+} );
+
 // read from the file-opened channel, opened in the main process
 ipcRenderer.on( 'file-opened', ( event, file, content ) => {
 	if ( mainProcess.isDocumentEdited( currentWindow ) ) {

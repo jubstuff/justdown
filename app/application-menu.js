@@ -3,6 +3,39 @@ const mainProcess = require( './main' );
 
 const template = [
 	{
+		label: 'File',
+		submenu: [
+			{
+				label: 'New File',
+				accelerator: 'CommandOrControl+N',
+				click() {
+					mainProcess.createWindow();
+				}
+			},
+			{
+				label: 'Open File',
+				accelerator: 'CommandOrControl+O',
+				click( item, focusedWindow ) {
+					mainProcess.getFileFromUser( focusedWindow );
+				}
+			},
+			{
+				label: 'Save File',
+				accelerator: 'CommandOrControl+S',
+				click( item, focusedWindow ) {
+					focusedWindow.webContents.send( 'save-markdown' );
+				}
+			},
+			{
+				label: 'Export HTML',
+				accelerator: 'Shift+CommandOrControl+S',
+				click( item, focusedWindow ) {
+					focusedWindow.webContents.send( 'save-html' );
+				}
+			}
+		]
+	},
+	{
 		label: 'Edit',
 		submenu: [
 			{label: 'Undo', accelerator: 'CommandOrControl+Z', role: 'undo',},
@@ -28,12 +61,13 @@ const template = [
 		submenu: [
 			{
 				label: 'Visit Website',
-				click() { /* To be implemented */ }
+				click() { /* To be implemented */
+				}
 			},
 			{
 				label: 'Toggle Developer Tools',
-				click(item, focusedWindow) {
-					if (focusedWindow) {
+				click( item, focusedWindow ) {
+					if ( focusedWindow ) {
 						focusedWindow.webContents.toggleDevTools();
 					}
 				}
@@ -88,10 +122,10 @@ if ( process.platform === 'darwin' ) {
 		],
 	} );
 
-	const windowMenu = template.find(item => item.label === 'Window');
+	const windowMenu = template.find( item => item.label === 'Window' );
 	windowMenu.role = 'window';
 	windowMenu.submenu.push(
-		{ type: 'separator' },
+		{type: 'separator'},
 		{
 			label: 'Bring all to front',
 			role: 'front'
