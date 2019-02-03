@@ -2,6 +2,7 @@ const marked = require( 'marked' );
 const path = require( 'path' );
 
 const {remote, ipcRenderer} = require( 'electron' );
+const { Menu } = remote;
 // require the main process
 const mainProcess = remote.require( './main.js' );
 
@@ -165,3 +166,17 @@ document.addEventListener( 'dragstart', event => event.preventDefault() );
 document.addEventListener( 'dragover', event => event.preventDefault() );
 document.addEventListener( 'dragleave', event => event.preventDefault() );
 document.addEventListener( 'drop', event => event.preventDefault() );
+
+const markdownContextMenu = Menu.buildFromTemplate([
+	{ label: 'Open File', click() { mainProcess.getFileFromUser(); } },
+	{ type: 'separator' },
+	{ label: 'Cut', role: 'cut' },
+	{ label: 'Copy', role: 'copy' },
+	{ label: 'Paste', role: 'paste' },
+	{ label: 'Select All', role: 'selectall' },
+]);
+
+markdownView.addEventListener('contextmenu', (event) => {
+	event.preventDefault();
+	markdownContextMenu.popup();
+});
