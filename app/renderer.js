@@ -1,8 +1,8 @@
 const marked = require( 'marked' );
 const path = require( 'path' );
 
-const {remote, ipcRenderer} = require( 'electron' );
-const { Menu } = remote;
+const {remote, ipcRenderer, shell} = require( 'electron' );
+const {Menu} = remote;
 // require the main process
 const mainProcess = remote.require( './main.js' );
 
@@ -35,8 +35,28 @@ const renderFile = ( file, content ) => {
 	markdownView.value = content;
 	renderMarkdownToHtml( content );
 
+	showFileButton.disabled = false;
+	openInDefaultButton.disabled = false;
+
 	updateUserInterface( false );
 };
+
+const showFile = () => {
+	if ( ! filePath ) {
+		return alert( 'This file has not been saved to the filesystem.' );
+	}
+	shell.showItemInFolder( filePath );
+};
+
+const openInDefaultApplication = () => {
+	if ( ! filePath ) {
+		return alert( 'This file has not been saved to the filesystem.' );
+	}
+	shell.openItem( filePath );
+};
+
+showFileButton.addEventListener( 'click', showFile );
+openInDefaultButton.addEventListener( 'click', openInDefaultApplication );
 
 markdownView.addEventListener( 'dragover', ( event ) => {
 	const file = getDraggedFile( event );
@@ -149,6 +169,9 @@ ipcRenderer.on( 'file-changed', ( event, file, content ) => {
 	renderFile( file, content );
 } );
 
+ipcRenderer.on( 'show-file', showFile );
+ipcRenderer.on( 'open-in-default', openInDefaultApplication );
+
 saveHtmlButton.addEventListener( 'click', () => {
 	mainProcess.saveHtml( currentWindow, htmlView.innerHTML );
 } );
@@ -167,16 +190,20 @@ document.addEventListener( 'dragover', event => event.preventDefault() );
 document.addEventListener( 'dragleave', event => event.preventDefault() );
 document.addEventListener( 'drop', event => event.preventDefault() );
 
-const markdownContextMenu = Menu.buildFromTemplate([
-	{ label: 'Open File', click() { mainProcess.getFileFromUser(); } },
-	{ type: 'separator' },
-	{ label: 'Cut', role: 'cut' },
-	{ label: 'Copy', role: 'copy' },
-	{ label: 'Paste', role: 'paste' },
-	{ label: 'Select All', role: 'selectall' },
-]);
+const markdownContextMenu = Menu.buildFromTemplate( [
+	{
+		label: 'Open File', click() {
+			mainProcess.getFileFromUser();
+		}
+	},
+	{type: 'separator'},
+	{label: 'Cut', role: 'cut'},
+	{label: 'Copy', role: 'copy'},
+	{label: 'Paste', role: 'paste'},
+	{label: 'Select All', role: 'selectall'},
+] );
 
-markdownView.addEventListener('contextmenu', (event) => {
+markdownView.addEventListener( 'contextmenu', ( event ) => {
 	event.preventDefault();
 	markdownContextMenu.popup();
-});
+} );

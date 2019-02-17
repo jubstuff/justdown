@@ -1,10 +1,11 @@
 {
-  "name": "firesale",
+  "name": "justdown",
   "version": "0.0.1",
   "description": "A simple markdown editor",
   "main": "./app/main.js",
   "scripts": {
     "start": "electron .",
+    "build": "electron-packager . --out=build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Giustino Borzacchiello",
@@ -13,6 +14,7 @@
     "marked": "^0.6.0"
   },
   "devDependencies": {
-    "electron": "^4.0.2"
+    "electron": "^4.0.2",
+    "electron-packager": "^13.0.1"
   }
 }
